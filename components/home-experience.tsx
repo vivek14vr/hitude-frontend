@@ -12,9 +12,9 @@ import type { Product } from '@/types';
 import { formatINR } from '@/lib/utils';
 import { useCart } from './cart-context';
 import { PincodeChecker } from './pincode-checker';
-import redPack from '@/animation/hero section/prod_1.png';
-import bluePack from '@/animation/hero section/prod_2.png';
-import violetPack from '@/animation/hero section/prod_3.png';
+import redPack from '@/animation/hero section/prod_1.webp';
+import bluePack from '@/animation/hero section/prod_2.webp';
+import violetPack from '@/animation/hero section/prod_3.webp';
 
 const ProductScene = dynamic(() => import('./home-product-scene'), { ssr: false });
 const images = [redPack, bluePack, violetPack];
@@ -44,8 +44,31 @@ function ModelView({ kind, paused, reduced, motion: suppliedMotion, focus = 0, c
   const [documentVisible, setDocumentVisible] = useState(true);
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
+  const [shouldEnhance, setShouldEnhance] = useState(false);
   const onReady = useCallback(() => setReady(true), []);
   const onError = useCallback(() => { setFailed(true); setReady(false); }, []);
+
+  useEffect(() => {
+    if (reduced) {
+      setShouldEnhance(false);
+      setReady(false);
+      return;
+    }
+
+    const connection = (navigator as Navigator & { connection?: { effectiveType?: string; saveData?: boolean } }).connection;
+    if (connection?.saveData || connection?.effectiveType === 'slow-2g' || connection?.effectiveType === '2g') return;
+
+    const browserWindow = window as Window & {
+      requestIdleCallback?: (callback: () => void, options?: { timeout: number }) => number;
+      cancelIdleCallback?: (handle: number) => void;
+    };
+    if (browserWindow.requestIdleCallback) {
+      const handle = browserWindow.requestIdleCallback(() => setShouldEnhance(true), { timeout: 1200 });
+      return () => browserWindow.cancelIdleCallback?.(handle);
+    }
+    const handle = window.setTimeout(() => setShouldEnhance(true), 450);
+    return () => window.clearTimeout(handle);
+  }, [reduced]);
 
   useEffect(() => {
     const node = host.current;
@@ -67,10 +90,10 @@ function ModelView({ kind, paused, reduced, motion: suppliedMotion, focus = 0, c
     }} onPointerLeave={() => { motion.current.x = 0; motion.current.y = 0; }}>
     <div className="hx-model-shadow" aria-hidden="true" />
     {!ready && <div className={`hx-poster ${kind === 'trio' ? 'hx-poster-trio' : ''}`} aria-hidden="true">
-      {(kind === 'trio' ? [0, 1, 2] : [kind === 'detail' ? 0 : focus]).map((index) => <Image key={index} src={images[index]} alt="" fill sizes="(max-width: 700px) 70vw, 40vw" />)}
+      {(kind === 'trio' ? [0, 1, 2] : [kind === 'detail' ? 0 : focus]).map((index) => <Image key={index} src={images[index]} alt="" fill priority={kind === 'trio'} quality={78} sizes="(max-width: 700px) 70vw, 40vw" />)}
     </div>}
     <div className="hx-canvas" aria-hidden="true">
-      {near && !failed && <SceneBoundary onError={onError}><ProductScene kind={kind} motion={motion} paused={paused} reduced={reduced} visible={visible && documentVisible} onReady={onReady} /></SceneBoundary>}
+      {near && shouldEnhance && !failed && <SceneBoundary onError={onError}><ProductScene kind={kind} motion={motion} paused={paused} reduced={reduced} visible={visible && documentVisible} onReady={onReady} /></SceneBoundary>}
     </div>
     {failed && <span className="hx-static-note">Product still view</span>}
   </div>;

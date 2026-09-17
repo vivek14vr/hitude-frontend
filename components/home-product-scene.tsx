@@ -17,9 +17,9 @@ export type SceneProps = {
 };
 
 // GLB order differs from the PNG filenames: red, blue, violet.
-const models = ['/animation/hero-section/prod_3.glb', '/animation/hero-section/prod_1.glb', '/animation/hero-section/prod_2.glb'];
+const models = ['/animation/hero-section/optimized/prod_3.glb', '/animation/hero-section/optimized/prod_1.glb', '/animation/hero-section/optimized/prod_2.glb'];
 
-function Pack({ index, kind, motion, paused, reduced }: Omit<SceneProps, 'onReady' | 'visible'> & { index: number }) {
+function Pack({ index, kind, motion, paused, reduced, onReady }: Omit<SceneProps, 'visible'> & { index: number }) {
   const { scene } = useGLTF(models[index]);
   const root = useRef<THREE.Group>(null);
   const time = useRef(0);
@@ -36,6 +36,8 @@ function Pack({ index, kind, motion, paused, reduced }: Omit<SceneProps, 'onRead
     centered.rotation.y = Math.PI;
     return centered;
   }, [scene]);
+
+  useEffect(() => { onReady(); }, [onReady]);
 
   useFrame((_, rawDelta) => {
     const group = root.current;
@@ -78,7 +80,6 @@ function Stage(props: SceneProps) {
     ortho.updateProjectionMatrix();
     invalidate();
   }, [camera, size, props.kind, invalidate]);
-  useEffect(() => { props.onReady(); }, [props.onReady]);
   useEffect(() => {
     if ((!props.paused && !props.reduced) || !props.visible) return;
     const id = window.setInterval(invalidate, 100);
@@ -89,14 +90,14 @@ function Stage(props: SceneProps) {
     <directionalLight position={[-4, 5, 7]} intensity={2.5} color="#fff3df" />
     <directionalLight position={[4, 2, -3]} intensity={2.8} color="#a8bfff" />
     <directionalLight position={[0, -3, 4]} intensity={0.65} color="#ffc9a0" />
-    {(props.kind === 'detail' ? [0] : [0, 1, 2]).map((index) => <Pack key={index} index={index} {...props} />)}
+    {(props.kind === 'detail' ? [0] : [0, 1, 2]).map((index) => <Suspense key={index} fallback={null}><Pack index={index} {...props} /></Suspense>)}
   </>;
 }
 
 export default function HomeProductScene(props: SceneProps) {
   return <Canvas orthographic camera={{ position: [0, 0, 9], zoom: 85, near: 0.1, far: 50 }}
-    dpr={[1, 1.5]} frameloop={!props.visible ? 'never' : props.paused || props.reduced ? 'demand' : 'always'}
-    gl={{ alpha: true, antialias: true, powerPreference: 'default' }}>
+    dpr={[1, 1.25]} frameloop={!props.visible ? 'never' : props.paused || props.reduced ? 'demand' : 'always'}
+    gl={{ alpha: true, antialias: false, powerPreference: 'high-performance' }}>
     <Suspense fallback={null}><Stage {...props} /></Suspense>
   </Canvas>;
 }

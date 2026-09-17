@@ -4,10 +4,10 @@ import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import { Pause, Play } from 'lucide-react';
 import { useState } from 'react';
-import prodSassy from '@/animation/hero section/prod_1.png';
-import prodNidra from '@/animation/hero section/prod_2.png';
-import prodDeep from '@/animation/hero section/prod_3.png';
-import platform from '@/animation/hero section/platform.png';
+import prodSassy from '@/animation/hero section/prod_1.webp';
+import prodNidra from '@/animation/hero section/prod_2.webp';
+import prodDeep from '@/animation/hero section/prod_3.webp';
+import platform from '@/animation/hero section/platform.webp';
 
 const Hero3DScene = dynamic(() => import('./hero-3d-scene').then((module) => module.Hero3DScene), {
   ssr: false,
@@ -41,6 +41,7 @@ export function HeroArt() {
       alt=""
       fill
       priority
+      quality={78}
       sizes="(max-width: 1024px) 100vw, 55vw"
     />
     <div className="cinematic-hero-veil" aria-hidden="true" />
