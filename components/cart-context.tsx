@@ -7,7 +7,7 @@ type CartContextValue = {
   items: CartItem[];
   itemCount: number;
   subtotal: number;
-  addItem: (product: Product, pack?: 5 | 10 | 20) => void;
+  addItem: (product: Product, pack?: number) => void;
   updateQuantity: (id: string, quantity: number) => void;
   removeItem: (id: string) => void;
   clearCart: () => void;
@@ -35,13 +35,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     items,
     itemCount: items.reduce((sum, item) => sum + item.quantity, 0),
     subtotal: items.reduce((sum, item) => sum + item.packPrice * item.quantity, 0),
-    addItem: (product: Product, pack: 5 | 10 | 20 = 20) => {
-      const packPrice = product.availablePacks.find((option) => option.quantity === pack)?.price ?? product.price;
+    addItem: (product: Product, pack?: number) => {
+      const selectedPack = pack ?? product.availablePacks.at(-1)?.quantity ?? 20;
+      const packPrice = product.availablePacks.find((option) => option.quantity === selectedPack)?.price ?? product.price;
       setItems((current) => {
-        const id = `${product.id}-${pack}`;
+        const id = `${product.id}-${selectedPack}`;
         const existing = current.find((item) => `${item.product.id}-${item.pack}` === id);
         if (existing) return current.map((item) => `${item.product.id}-${item.pack}` === id ? { ...item, quantity: item.quantity + 1 } : item);
-        return [...current, { product, pack, packPrice, quantity: 1 }];
+        return [...current, { product, pack: selectedPack, packPrice, quantity: 1 }];
       });
     },
     updateQuantity: (id: string, quantity: number) => setItems((current) => quantity <= 0 ? current.filter((item) => `${item.product.id}-${item.pack}` !== id) : current.map((item) => `${item.product.id}-${item.pack}` === id ? { ...item, quantity } : item)),
@@ -57,4 +58,3 @@ export function useCart() {
   if (!context) throw new Error('useCart must be used within CartProvider');
   return context;
 }
-

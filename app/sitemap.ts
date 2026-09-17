@@ -1,4 +1,7 @@
 import type { MetadataRoute } from 'next';
-import { posts, products } from '@/lib/product-data';
-export default function sitemap(): MetadataRoute.Sitemap { const base = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'; const routes = ['', '/shop', '/our-story', '/blog', '/consultation', '/contact', '/policies/shipping', '/policies/returns', '/policies/privacy', '/policies/terms', '/policies/age-eligibility']; return [...routes.map((route) => ({ url: `${base}${route}`, lastModified: new Date(), changeFrequency: route === '' ? 'weekly' as const : 'monthly' as const, priority: route === '' ? .9 : .6 })), ...products.map((product) => ({ url: `${base}/products/${product.slug}`, lastModified: new Date(), changeFrequency: 'weekly' as const, priority: .8 })), ...posts.map((post) => ({ url: `${base}/blog/${post.slug}`, lastModified: new Date(), changeFrequency: 'monthly' as const, priority: .7 }))]; }
+import { posts } from '@/lib/product-data';
+import { getProducts } from '@/lib/product-catalog';
 
+export const dynamic = 'force-dynamic';
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> { const base = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'; const products = await getProducts(); const routes = ['', '/shop', '/our-story', '/blog', '/consultation', '/contact', '/policies/shipping', '/policies/returns', '/policies/privacy', '/policies/terms', '/policies/age-eligibility']; return [...routes.map((route) => ({ url: `${base}${route}`, lastModified: new Date(), changeFrequency: route === '' ? 'weekly' as const : 'monthly' as const, priority: route === '' ? .9 : .6 })), ...products.map((product) => ({ url: `${base}/products/${product.slug}`, lastModified: new Date(), changeFrequency: 'weekly' as const, priority: .8 })), ...posts.map((post) => ({ url: `${base}/blog/${post.slug}`, lastModified: new Date(), changeFrequency: 'monthly' as const, priority: .7 }))]; }

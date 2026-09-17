@@ -21,7 +21,9 @@ import {
 } from 'lucide-react';
 import { FormEvent, useEffect, useState } from 'react';
 import { api } from '@/lib/api-client';
+import { toProduct } from '@/lib/product-adapter';
 import { formatINR } from '@/lib/utils';
+import type { Product } from '@/types';
 
 const modules = [
   ['Overview', '/admin', LayoutDashboard],
@@ -240,6 +242,22 @@ function ModuleView({ module, current }: { module: string; current: string }) {
   const isProducts = module === 'products';
   const [showProductForm, setShowProductForm] = useState(false);
   const [notice, setNotice] = useState('');
+  const [productRecords, setProductRecords] = useState<Product[]>([]);
+  const [productsLoading, setProductsLoading] = useState(false);
+  const [productsError, setProductsError] = useState('');
+  const [productsRefresh, setProductsRefresh] = useState(0);
+
+  useEffect(() => {
+    if (!isProducts) return;
+    let active = true;
+    setProductsLoading(true);
+    setProductsError('');
+    api.adminProducts()
+      .then((records) => { if (active) setProductRecords(records.map(toProduct)); })
+      .catch((error) => { if (active) setProductsError(error instanceof Error ? error.message : 'Products could not be loaded.'); })
+      .finally(() => { if (active) setProductsLoading(false); });
+    return () => { active = false; };
+  }, [isProducts, productsRefresh]);
 
   return (
     <div className="mt-8 min-w-0 rounded-3xl bg-paper p-6 sm:p-8">
@@ -262,14 +280,22 @@ function ModuleView({ module, current }: { module: string; current: string }) {
         </div>
       </div>
       {notice && <p className="mt-5 rounded-xl bg-[#dfe6df] p-3 text-sm text-moss" role="status">{notice}</p>}
-      <div className="mt-10 rounded-2xl border border-dashed border-line p-8 text-center sm:p-10">
+      {isProducts ? <ProductList products={productRecords} loading={productsLoading} error={productsError} onRetry={() => setProductsRefresh((currentRefresh) => currentRefresh + 1)} /> : <div className="mt-10 rounded-2xl border border-dashed border-line p-8 text-center sm:p-10">
         <p className="eyebrow">Ready for API data</p>
         <h3 className="mt-3 font-display text-2xl">{module === 'prescription-verification' ? 'Verification queue' : `${current} records`}</h3>
         <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-ink/55">Connect this workspace to the protected NestJS endpoint to load live records, filters, pagination, audit history, and bulk actions.</p>
-      </div>
-      {isProducts && showProductForm && <ProductCreatePanel onClose={() => setShowProductForm(false)} onSaved={(name) => { setShowProductForm(false); setNotice(`${name} was created successfully.`); }} />}
+      </div>}
+      {isProducts && showProductForm && <ProductCreatePanel onClose={() => setShowProductForm(false)} onSaved={(name) => { setShowProductForm(false); setNotice(`${name} was created successfully.`); setProductsRefresh((currentRefresh) => currentRefresh + 1); }} />}
     </div>
   );
+}
+
+function ProductList({ products, loading, error, onRetry }: { products: Product[]; loading: boolean; error: string; onRetry: () => void }) {
+  if (loading) return <div className="mt-10 rounded-2xl border border-line p-8 text-center" role="status">Loading products...</div>;
+  if (error) return <div className="mt-10 rounded-2xl border border-[#f0c9c0] bg-[#fdf1ee] p-8 text-center"><p className="text-sm text-vermillion">{error}</p><button type="button" className="button button-secondary mt-5" onClick={onRetry}>Try again</button></div>;
+  if (!products.length) return <div className="mt-10 rounded-2xl border border-dashed border-line p-8 text-center sm:p-10"><p className="eyebrow">No products yet</p><h3 className="mt-3 font-display text-2xl">Your catalog is ready.</h3><p className="mx-auto mt-3 max-w-md text-sm leading-6 text-ink/55">Create the first product profile to make it available to the storefront.</p></div>;
+
+  return <div className="mt-10 overflow-x-auto"><table className="w-full min-w-[680px] text-left text-sm"><thead className="border-b border-line text-xs text-ink/45"><tr><th className="pb-3 font-medium">Product</th><th className="pb-3 font-medium">Price</th><th className="pb-3 font-medium">Packs</th><th className="pb-3 font-medium">Stock</th><th className="pb-3 font-medium">Visibility</th></tr></thead><tbody>{products.map((product) => <tr className="border-b border-line/70 last:border-0" key={product.id}><td className="py-4"><p className="font-semibold">{product.name}</p><p className="mt-1 text-xs text-ink/50">{product.profile} · /{product.slug}</p></td><td className="py-4">{formatINR(product.price)}</td><td className="py-4 text-ink/60">{product.availablePacks.map((pack) => `${pack.quantity} gummies`).join(' · ')}</td><td className="py-4"><span className="rounded-full bg-cream px-3 py-1 text-xs">{product.status.replaceAll('_', ' ')}</span></td><td className="py-4"><span className={`rounded-full px-3 py-1 text-xs ${product.publishReady ? 'bg-[#dfe6df] text-moss' : 'bg-cream text-ink/55'}`}>{product.publishReady ? 'Published' : 'Draft'}</span></td></tr>)}</tbody></table></div>;
 }
 
 type ProductPackForm = { quantity: string; price: string; label: string };

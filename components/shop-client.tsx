@@ -2,10 +2,10 @@
 
 import { Filter, Search, SlidersHorizontal, X } from 'lucide-react';
 import { useMemo, useState } from 'react';
-import { products } from '@/lib/product-data';
+import type { Product } from '@/types';
 import { ProductCard } from './product-card';
 
-export function ShopClient() {
+export function ShopClient({ products }: { products: Product[] }) {
   const [query, setQuery] = useState('');
   const [profile, setProfile] = useState('all');
   const [sort, setSort] = useState('featured');
@@ -21,4 +21,3 @@ export function ShopClient() {
     {filtersOpen && <div className="fixed inset-0 z-50 bg-ink/25 backdrop-blur-sm lg:hidden" onClick={() => setFiltersOpen(false)}><aside className="ml-auto h-full w-[min(90vw,360px)] bg-paper p-6" onClick={(event) => event.stopPropagation()}><div className="flex items-center justify-between"><p className="font-display text-2xl">Filter & sort</p><button className="icon-button" onClick={() => setFiltersOpen(false)} aria-label="Close filters"><X size={19} /></button></div><div className="mt-10"><p className="eyebrow">Profile</p><div className="mt-3 grid gap-2">{[['all', 'All profiles'], ['strawberry', 'Strawberry / Sassy Hi'], ['citrus', 'Citrus / Sassy Attitude']].map(([value, label]) => <button key={value} className={`rounded-xl border p-3 text-left text-sm ${profile === value ? 'border-ink bg-cream font-semibold' : 'border-line'}`} onClick={() => setProfile(value)}>{label}</button>)}</div></div><div className="mt-10"><label className="eyebrow" htmlFor="mobile-sort">Sort by</label><select id="mobile-sort" className="input mt-3" value={sort} onChange={(event) => setSort(event.target.value)}><option value="featured">Featured</option><option value="price-low">Price: low to high</option><option value="price-high">Price: high to low</option></select></div><button className="button button-primary mt-10 w-full" onClick={() => setFiltersOpen(false)}>Show {filtered.length} results</button></aside></div>}
   </>;
 }
-

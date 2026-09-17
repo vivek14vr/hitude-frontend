@@ -1,8 +1,10 @@
 import { HomeExperience } from '@/components/home-experience';
 import './home-experience.css';
+import { getProducts } from '@/lib/product-catalog';
 
-export const revalidate = 3600;
+export const dynamic = 'force-dynamic';
 
-export default function HomePage() {
-  return <HomeExperience />;
+export default async function HomePage() {
+  const products = await getProducts();
+  return <HomeExperience products={products} />;
 }

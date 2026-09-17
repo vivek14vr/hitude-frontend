@@ -24,6 +24,7 @@ export const products: Product[] = [
     rating: 4.8,
     reviewCount: 0,
     verificationRequired: true,
+    publishReady: true,
   },
   {
     id: 'prod-sassy-attitude',
@@ -48,6 +49,7 @@ export const products: Product[] = [
     rating: 4.7,
     reviewCount: 0,
     verificationRequired: true,
+    publishReady: true,
   },
 ];
 

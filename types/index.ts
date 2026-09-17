@@ -1,4 +1,11 @@
 export type ProductProfile = 'strawberry' | 'citrus';
+export type ProductStatus = 'in_stock' | 'low_stock' | 'out_of_stock';
+
+export type ProductPack = {
+  quantity: number;
+  price: number;
+  label: string;
+};
 
 export type Product = {
   id: string;
@@ -13,18 +20,19 @@ export type Product = {
   ingredients: string[];
   price: number;
   compareAt?: number;
-  availablePacks: Array<{ quantity: 5 | 10 | 20; price: number; label: string }>;
+  availablePacks: ProductPack[];
   badge?: string;
-  status: 'in_stock' | 'low_stock' | 'out_of_stock';
+  status: ProductStatus;
   rating?: number;
   reviewCount?: number;
   verificationRequired: boolean;
+  publishReady: boolean;
 };
 
 export type CartItem = {
   product: Product;
   quantity: number;
-  pack: 5 | 10 | 20;
+  pack: number;
   packPrice: number;
 };
 
@@ -36,4 +44,3 @@ export type BlogPost = {
   readTime: string;
   date: string;
 };
-

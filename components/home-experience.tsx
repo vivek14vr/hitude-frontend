@@ -7,7 +7,8 @@ import { ArrowDown, ArrowDownRight, ArrowRight, ArrowUpRight, Check, FlaskConica
 import { Component, useCallback, useEffect, useRef, useState } from 'react';
 import type { CSSProperties, MutableRefObject, ReactNode } from 'react';
 import type { SceneMotion } from './home-product-scene';
-import { products, posts, faqs } from '@/lib/product-data';
+import { products as fallbackProducts, posts, faqs } from '@/lib/product-data';
+import type { Product } from '@/types';
 import { formatINR } from '@/lib/utils';
 import { useCart } from './cart-context';
 import { PincodeChecker } from './pincode-checker';
@@ -75,7 +76,7 @@ function ModelView({ kind, paused, reduced, motion: suppliedMotion, focus = 0, c
   </div>;
 }
 
-export function HomeExperience() {
+export function HomeExperience({ products = fallbackProducts }: { products?: Product[] }) {
   const page = useRef<HTMLDivElement>(null);
   const story = useRef<HTMLElement>(null);
   const storyMotion = useRef(newMotion());
