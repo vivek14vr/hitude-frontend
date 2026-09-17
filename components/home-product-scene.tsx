@@ -17,7 +17,7 @@ export type SceneProps = {
 };
 
 // GLB order differs from the PNG filenames: red, blue, violet.
-const models = ['/animation/hero-section/optimized/prod_3.glb', '/animation/hero-section/optimized/prod_1.glb', '/animation/hero-section/optimized/prod_2.glb'];
+const models = ['/animation/hero-section/prod_3.glb', '/animation/hero-section/prod_1.glb', '/animation/hero-section/prod_2.glb'];
 
 function Pack({ index, kind, motion, paused, reduced, onReady }: Omit<SceneProps, 'visible'> & { index: number }) {
   const { scene } = useGLTF(models[index]);

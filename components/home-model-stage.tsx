@@ -13,9 +13,9 @@ import prodDeep from '@/animation/hero section/prod_3.webp';
 export type HomeModelKey = 'sassy' | 'nidra' | 'deep';
 
 const modelUrls: Record<HomeModelKey, string> = {
-  sassy: '/animation/hero-section/optimized/prod_1.glb',
-  nidra: '/animation/hero-section/optimized/prod_2.glb',
-  deep: '/animation/hero-section/optimized/prod_3.glb',
+  sassy: '/animation/hero-section/prod_1.glb',
+  nidra: '/animation/hero-section/prod_2.glb',
+  deep: '/animation/hero-section/prod_3.glb',
 };
 
 const fallbackImages: Record<HomeModelKey, typeof prodSassy> = {

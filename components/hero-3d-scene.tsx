@@ -20,9 +20,9 @@ type ProductConfig = {
 const productConfigs: ProductConfig[] = [
   // Keep a small, visible air gap between each pack so their silhouettes do
   // not merge when the camera or the collection rig gently moves.
-  { url: '/animation/hero-section/optimized/prod_1.glb', x: -1.16, y: 0, z: -0.08, height: 1.5, lift: 0.5, tilt: -0.16, phase: 0.2, delay: 0.22 },
-  { url: '/animation/hero-section/optimized/prod_2.glb', x: 0, y: 0.04, z: 0.12, height: 1.94, lift: 0.46, tilt: 0.01, phase: 2.1, delay: 0.42 },
-  { url: '/animation/hero-section/optimized/prod_3.glb', x: 1.16, y: 0, z: -0.04, height: 1.5, lift: 0.52, tilt: 0.16, phase: 4, delay: 0.64 },
+  { url: '/animation/hero-section/prod_1.glb', x: -1.16, y: 0, z: -0.08, height: 1.5, lift: 0.5, tilt: -0.16, phase: 0.2, delay: 0.22 },
+  { url: '/animation/hero-section/prod_2.glb', x: 0, y: 0.04, z: 0.12, height: 1.94, lift: 0.46, tilt: 0.01, phase: 2.1, delay: 0.42 },
+  { url: '/animation/hero-section/prod_3.glb', x: 1.16, y: 0, z: -0.04, height: 1.5, lift: 0.52, tilt: 0.16, phase: 4, delay: 0.64 },
 ];
 
 const clamp = (value: number, min = 0, max = 1) => Math.min(max, Math.max(min, value));
